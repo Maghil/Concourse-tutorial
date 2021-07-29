@@ -1,0 +1,80 @@
+var_sources:
+- name: vault
+  type: vault
+  config:
+    url: http://127.0.0.1:8200
+
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
+resources:
+- name: pull-repo
+  type: git
+  source:
+    uri: https://github.com/Maghil/concourse-test-pipeline.git
+    branch: master
+- name: pr
+  type: pull-request
+  source:
+    repository: Maghil/concourse-test-pipeline
+    access_token: ((vault:access-token))
+      
+jobs:
+- name: test-in-master
+  plan:
+  - get: pull-repo
+    trigger: true
+  - task: run-test
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: painless/tox
+      inputs:
+        - name: pull-repo
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          cd pull-repo
+          tox
+- name: test-pr
+  plan:
+  - get : pr
+    trigger: true
+  - put: pr
+    params: 
+      path: pr
+      status: pending
+  - task: run-test
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: painless/tox
+      inputs:
+        - name: pr
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          cd pr
+          tox
+    on_failure:
+      put: pr
+      params:
+        path: pr
+        status: failure
+        comment: failed
+  - put: pr
+    params:
+      path: pr
+      status: success
+      comment: pass bro

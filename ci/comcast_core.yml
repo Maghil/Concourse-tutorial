@@ -1,0 +1,33 @@
+resources:
+- name: code
+  type: git
+  source:
+    uri: https://github.comcast.com/mm622/concourse.git
+    branch: master
+    username: mm622
+    password: ((enter access token))
+
+- name: recipes
+  type: git
+  icon: github
+  check_every: 24h
+  source:
+    uri: https://github.comcast.com/concourse/recipes
+    username: mm622
+    password: ((enter access token))
+
+jobs:
+- name: pull-request-job  
+  serial: true
+  plan:
+  - get: code
+  - get: recipes
+  - task: pull-request
+    file: recipes/tasks/misc/file_pr.yml
+    params:
+      TITLE: merge this
+      ASSIGNEES: mm622     
+      url: https://github.comcast.com/mm622/concourse/pulls   
+      GH_TOKEN: ((concourse))
+      BASE: main
+      REPO: https://github.comcast.com/mm622/concourse
