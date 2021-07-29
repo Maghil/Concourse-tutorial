@@ -2,7 +2,7 @@ var_sources:
 - name: vault
   type: vault
   config:
-    url: http://127.0.0.1:8200
+    url: http://127.0.0.1:8200/v1/concourse/maghil
 
 resource_types:
 - name: pull-request
@@ -14,12 +14,12 @@ resources:
 - name: pull-repo
   type: git
   source:
-    uri: https://github.com/Maghil/concourse-test-pipeline.git
+    uri: https://github.com/Maghil/Concourse-tutorial.git
     branch: master
 - name: pr
   type: pull-request
   source:
-    repository: Maghil/concourse-test-pipeline
+    repository: Maghil/Concourse-tutorial
     access_token: ((vault:access-token))
       
 jobs:
