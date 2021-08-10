@@ -1,9 +1,3 @@
-var_sources:
-- name: vault
-  type: vault
-  config:
-    url: http://127.0.0.1:8200/v1/concourse/maghil
-
 resource_types:
 - name: pull-request
   type: docker-image
@@ -20,7 +14,7 @@ resources:
   type: pull-request
   source:
     repository: Maghil/Concourse-tutorial
-    access_token: ((vault:access-token))
+    access_token: ((tutorial.access-token))
       
 jobs:
 - name: test-in-master
